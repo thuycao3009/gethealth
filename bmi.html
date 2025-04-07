@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theo Dõi & Phân Loại BMI</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(to bottom right, #e8f4ff, #ffffff);
+      color: #333;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 750px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 20px 0 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f0faff;
+      border-left: 6px solid #007bff;
+      border-radius: 8px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    canvas {
+      margin-top: 40px;
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .bmi-guide {
+      margin-top: 30px;
+      font-size: 16px;
+      color: #444;
+      line-height: 1.8;
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #fff7e6;
+      animation: scrollText 15s linear infinite;
+    }
+
+    @keyframes scrollText {
+      0% { background-color: #fff7e6; color: #444; }
+      50% { background-color: #ffe0b2; color: #000; }
+      100% { background-color: #fff7e6; color: #444; }
+    }
+
+    .bmi-guide span {
+      display: block;
+      padding: 5px 0;
+    }
+
+    .bmi-guide .low { color: #ff5722; font-weight: bold; }
+    .bmi-guide .normal { color: #4caf50; font-weight: bold; }
+    .bmi-guide .high { color: #f44336; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>Chỉ Số BMI - Tính Toán & Phân Loại</header>
+  <div class="container">
+    <h2>Nhập thông tin của bạn</h2>
+    <label>Giới tính</label>
+    <select id="gender">
+      <option value="male">Nam</option>
+      <option value="female">Nữ</option>
+    </select>
+
+    <label>Tuổi</label>
+    <input type="number" id="age" placeholder="Nhập tuổi của bạn">
+
+    <label>Cân nặng (kg)</label>
+    <input type="number" id="weight" placeholder="Nhập cân nặng">
+
+    <label>Chiều cao (cm)</label>
+    <input type="number" id="height" placeholder="Nhập chiều cao">
+
+    <button onclick="calculateBMI()">Tính BMI</button>
+    <button onclick="saveBMI()">Lưu kết quả</button>
+
+    <div id="result" class="result" style="display:none"></div>
+    <canvas id="bmiChart"></canvas>
+
+    <div class="bmi-guide">
+      <strong>📌 Phân loại BMI theo WHO:</strong>
+      <span class="low">BMI < 16: Gầy độ III</span>
+      <span class="low">16 ≤ BMI < 17: Gầy độ II</span>
+      <span class="low">17 ≤ BMI < 18.5: Gầy độ I</span>
+      <span class="normal">18.5 ≤ BMI < 25: Bình thường</span>
+      <span class="high">25 ≤ BMI < 30: Thừa cân</span>
+      <span class="high">30 ≤ BMI < 35: Béo phì độ I</span>
+      <span class="high">35 ≤ BMI < 40: Béo phì độ II</span>
+      <span class="high">BMI ≥ 40: Béo phì độ III</span>
+    </div>
+  </div>
+
+  <script>
+    let lastBMI = null;
+    let bmiChart = null;
+
+    const weekdays = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+
+    function calculateBMI() {
+      const weight = parseFloat(document.getElementById("weight").value);
+      const height = parseFloat(document.getElementById("height").value);
+      const age = parseInt(document.getElementById("age").value);
+      const gender = document.getElementById("gender").value;
+
+      if (!weight || !height || !age) {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+        return;
+      }
+
+      const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+      lastBMI = parseFloat(bmi);
+      let message = `<strong>Chỉ số BMI của bạn là: ${bmi}</strong><br>`;
+
+      if (bmi < 16) message += "⚠️ Gầy độ III";
+      else if (bmi < 17) message += "⚠️ Gầy độ II";
+      else if (bmi < 18.5) message += "⚠️ Gầy độ I";
+      else if (bmi < 25) message += "✅ Bình thường";
+      else if (bmi < 30) message += "⚠️ Thừa cân";
+      else if (bmi < 35) message += "⚠️ Béo phì độ I";
+      else if (bmi < 40) message += "⚠️ Béo phì độ II";
+      else message += "⚠️ Béo phì độ III";
+
+      message += `<br><em>Tuổi: ${age}, Giới tính: ${gender === 'male' ? 'Nam' : 'Nữ'}</em>`;
+      document.getElementById("result").innerHTML = message;
+      document.getElementById("result").style.display = "block";
+    }
+
+    function getWeekdayKey(date) {
+      const day = date.getDay();
+      const d = date.getDate().toString().padStart(2, '0');
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      return `${weekdays[day]} (${d}/${m})`;
+    }
+
+    function saveBMI() {
+      if (lastBMI === null) {
+        alert("Vui lòng tính chỉ số BMI trước.");
+        return;
+      }
+      const today = new Date();
+      const dayKey = getWeekdayKey(today);
+      const history = JSON.parse(localStorage.getItem("bmiWeekHistory") || '{}');
+      history[dayKey] = lastBMI;
+      localStorage.setItem("bmiWeekHistory", JSON.stringify(history));
+      drawChart();
+    }
+
+    function drawChart() {
+      const ctx = document.getElementById('bmiChart').getContext('2d');
+      const history = JSON.parse(localStorage.getItem("bmiWeekHistory") || '{}');
+      const labels = Object.keys(history);
+      const data = labels.map(day => history[day]);
+
+      if (bmiChart instanceof Chart) {
+        bmiChart.destroy();
+      }
+      bmiChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'BMI theo ngày trong tuần',
+            data: data,
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.2)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          animation: {
+            duration: 1000,
+            easing: 'easeInOutQuart'
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              title: { display: true, text: 'BMI' }
+            },
+            x: {
+              title: { display: true, text: 'Ngày trong tuần' }
+            }
+          }
+        }
+      });
+    }
+
+    window.onload = drawChart;
+  </script>
+</body>
+</html>

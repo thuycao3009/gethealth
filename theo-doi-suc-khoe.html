@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theo Dõi Sức Khỏe Cá Nhân</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(to bottom right, #e8f4ff, #ffffff);
+      color: #333;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .menu {
+      background-color: #0056b3;
+      padding: 12px 0;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .menu-container a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: color 0.3s ease;
+    }
+
+    .menu-container a:hover {
+      color: #ffcc00;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 20px 0 8px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    select:focus {
+      box-shadow: 0 0 8px rgba(0,123,255,0.4);
+      outline: none;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f0faff;
+      border-left: 6px solid #007bff;
+      border-radius: 8px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .result strong {
+      display: block;
+      margin-top: 10px;
+    }
+
+    canvas {
+      margin-top: 40px;
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .note {
+      text-align: center;
+      margin-top: 20px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <!-- THANH MENU -->
+  <nav class="menu">
+    <div class="menu-container">
+      <a href="index.html">Trang Chủ</a>
+      <a href="khampha.html">Khám Phá</a>
+      <a href="tinhnang.html">Tính Năng</a>
+    </div>
+  </nav>
+
+  <header>Theo Dõi Sức Khỏe Cá Nhân</header>
+
+  <div class="container">
+    <h2>Chia sẻ cảm nhận hôm nay</h2>
+
+    <label>1. Giấc ngủ đêm qua</label>
+    <select id="sleep">
+      <option value="">-- Chọn --</option>
+      <option value="good">Ngủ ngon và sâu giấc</option>
+      <option value="average">Ngủ không đều</option>
+      <option value="bad">Mất ngủ hoặc ngủ muộn</option>
+    </select>
+
+    <label>2. Mức độ vận động</label>
+    <select id="activity">
+      <option value="">-- Chọn --</option>
+      <option value="high">Vận động nhiều</option>
+      <option value="medium">Vận động vừa phải</option>
+      <option value="low">Ít hoặc không vận động</option>
+    </select>
+
+    <label>3. Cảm giác cơ thể hiện tại</label>
+    <select id="feeling">
+      <option value="">-- Chọn --</option>
+      <option value="energetic">Khỏe khoắn</option>
+      <option value="normal">Bình thường</option>
+      <option value="tired">Mệt mỏi</option>
+      <option value="stressed">Căng thẳng</option>
+</select>
+
+    </select>
+
+    <label>4. Mức độ uống nước hôm nay</label>
+    <select id="water">
+      <option value="">-- Chọn --</option>
+      <option value="enough">Uống đủ nước (1.5-2 lít)</option>
+      <option value="less">Uống ít nước</option>
+      <option value="none">Gần như không uống</option>
+    </select>
+
+    <button onclick="showSummary()">Xem Đánh Giá</button>
+    <button onclick="saveScore()">Lưu Kết Quả Hôm Nay</button>
+
+    <div id="summary" class="result" style="display: none;"></div>
+    <canvas id="healthChart" width="800" height="400"></canvas>
+    <div class="note">* Dữ liệu được cập nhật mỗi ngày dựa trên tổng thể: vận động, nước uống, giấc ngủ, v.v...</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const labels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+    let scores = labels.map((_, index) => parseInt(localStorage.getItem("health_score_day_" + index)) || 0);
+
+    const ctx = document.getElementById('healthChart').getContext('2d');
+    const healthChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Điểm Sức Khỏe',
+          data: scores,
+          fill: true,
+          backgroundColor: 'rgba(0, 123, 255, 0.1)',
+          borderColor: '#007bff',
+          tension: 0.3,
+          pointBackgroundColor: '#007bff',
+          pointRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Điểm (%)'
+            }
+          }
+        }
+      }
+    });
+
+    function showSummary() {
+      const sleep = document.getElementById("sleep").value;
+      const activity = document.getElementById("activity").value;
+      const feeling = document.getElementById("feeling").value;
+      const water = document.getElementById("water").value;
+      const result = document.getElementById("summary");
+
+      if (!sleep || !activity || !feeling || !water) {
+        alert("Vui lòng chọn đầy đủ các thông tin!");
+        return;
+      }
+
+      let content = "<strong>✅ Đánh giá hôm nay:</strong>";
+
+      if (sleep === "good") content += "<br>- Bạn có giấc ngủ tốt. Cơ thể được phục hồi.";
+      else if (sleep === "average") content += "<br>- Ngủ chưa sâu. Có thể ảnh hưởng tới sự tập trung.";
+      else content += "<br>- Giấc ngủ kém. Nên cải thiện môi trường ngủ.";
+
+      if (activity === "high") content += "<br>- Bạn đã vận động đủ. Điều này rất tốt!";
+      else if (activity === "medium") content += "<br>- Vận động ổn định. Cố gắng hơn nữa nhé!";
+      else content += "<br>- Bạn nên rời ghế, đi bộ nhẹ nhàng mỗi ngày.";
+
+      if (feeling === "energetic") {
+  content += "<br>- Năng lượng dồi dào. Tiếp tục duy trì nhé!";
+} else if (feeling === "normal") {
+  content += "<br>- Bạn cảm thấy bình thường. Đây là dấu hiệu ổn định, hãy duy trì và lắng nghe cơ thể.";
+} else if (feeling === "tired") {
+  content += "<br>- Cơ thể mệt mỏi. Nghỉ ngơi hoặc bổ sung năng lượng bằng bữa ăn nhẹ, ngủ trưa hoặc đi dạo.";
+} else if (feeling === "stressed") {
+  content += "<br>- Bạn đang căng thẳng. Hãy thử hít thở sâu, thiền, hoặc chia sẻ với người thân để giải tỏa.";
+}
+
+
+      if (water === "enough") content += "<br>- Cung cấp nước đầy đủ giúp da và cơ thể khỏe mạnh.";
+      else if (water === "less") content += "<br>- Hãy uống thêm 1-2 cốc nước nữa nhé.";
+      else content += "<br>- Bạn đang thiếu nước trầm trọng, nên bổ sung ngay.";
+
+      content += "<strong><br><br>👉 Tổng kết:</strong>";
+      if (
+  sleep === "good" &&
+  activity === "high" &&
+  (feeling === "energetic" || feeling === "normal") &&
+  water === "enough"
+) {
+  content += "<br>👏 Bạn đang duy trì một lối sống rất khỏe mạnh!";
+} else if (feeling === "normal") {
+  content += "<br>✅ Cơ thể bạn đang ổn định. Hãy duy trì và nâng cấp từng chút để ngày mai tốt hơn.";
+} else {
+  content += "<br>⚠️ Hãy điều chỉnh thói quen để cơ thể bạn được tái tạo tốt hơn.";
+}
+
+
+      result.innerHTML = content;
+      result.style.display = "block";
+    }
+
+    function saveScore() {
+      const today = new Date().getDay();
+      const sleep = document.getElementById("sleep").value;
+      const activity = document.getElementById("activity").value;
+      const feeling = document.getElementById("feeling").value;
+      const water = document.getElementById("water").value;
+
+      if (!sleep || !activity || !feeling || !water) {
+        alert("Vui lòng chọn đầy đủ thông tin trước khi lưu!");
+        return;
+      }
+
+      let score = 0;
+      if (sleep === "good") score += 25;
+      else if (sleep === "average") score += 15;
+      else score += 5;
+
+      if (activity === "high") score += 25;
+      else if (activity === "medium") score += 15;
+      else score += 5;
+
+      if (feeling === "energetic") score += 25;
+else if (feeling === "normal") score += 20;
+else if (feeling === "tired") score += 15;
+else score += 5;
+
+
+      if (water === "enough") score += 25;
+      else if (water === "less") score += 15;
+      else score += 5;
+
+      const dayIndex = today === 0 ? 6 : today - 1;
+      scores[dayIndex] = score;
+      localStorage.setItem("health_score_day_" + dayIndex, score);
+      healthChart.data.datasets[0].data = scores;
+      healthChart.update();
+      alert("Đã lưu kết quả cho " + labels[dayIndex]);
+    }
+  </script>
+</html>

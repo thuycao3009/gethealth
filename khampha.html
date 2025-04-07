@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Khám Phá GetHealth</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #f3faff;
+      color: #333;
+      animation: fadeInBody 1s ease-in;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    header {
+      background: linear-gradient(120deg, #007bff, #0056b3);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .feature {
+      background-color: white;
+      padding: 24px;
+      margin: 20px auto;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: transform 0.4s, box-shadow 0.4s;
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+      max-width: 800px;
+    }
+
+    .feature:nth-child(1) { animation-delay: 0.2s; }
+    .feature:nth-child(2) { animation-delay: 0.4s; }
+    .feature:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature:hover {
+      transform: scale(1.025);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .feature h2 {
+      color: #007bff;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .feature p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    .btn-back {
+      display: inline-block;
+      margin: 40px auto 0;
+      background-color: #007bff;
+      color: white;
+      padding: 12px 28px;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      font-weight: 500;
+    }
+
+    .btn-back:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .btn-wrapper {
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .feature {
+        padding: 20px;
+        margin: 16px;
+      }
+
+      .feature h2 {
+        font-size: 20px;
+      }
+
+      .feature p {
+        font-size: 15px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Khám Phá Tính Năng GetHealth</h1>
+  </header>
+
+  <main>
+    <div class="feature" onclick="location.href='theo-doi-suc-khoe.html'">
+      <h2>Theo Dõi Sức Khỏe Cá Nhân</h2>
+      <p>Ghi nhận chỉ số sức khỏe hằng ngày như giấc ngủ, hoạt động, nhịp tim và hơn thế nữa.</p>
+    </div>
+    
+    <div class="feature" onclick="location.href='bmi.html'">
+      <h2>Đo chỉ số BMI</h2>
+      <p>Giúp đánh giá tình trạng cân nặng dựa vào mối quan hệ giữa cân nặng và chiều cao.</p>
+    </div>
+    
+    <div class="feature" onclick="location.href='aidoctor.html'">
+      <h2>Trò chuyện với AI Doctor</h2>
+      <p>Kết nối với AI Doctor, nhận phản hồi cá nhân hóa và chăm sóc sức khỏe từ xa hiệu quả.</p>
+    </div>
+    
+    <div class="btn-wrapper">
+      <a href="index.html" class="btn-back">Quay về Trang Chủ</a>
+    </div>
+  </main>
+
+</body>
+</html>
